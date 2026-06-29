@@ -1,8 +1,19 @@
-export const cleanJSON = (text) => {
+import ParserError from "../errors/ParserError.js";
 
-    return text
-      .replace(/```json/g, "")
+export const parseGeminiJSON = (text) => {
+  try {
+    const cleanedText = text
+      .replace(/```json/gi, "")
       .replace(/```/g, "")
       .trim();
-  
-  };
+
+    return JSON.parse(cleanedText);
+
+  } catch (error) {
+
+    throw new ParserError(
+      "Invalid JSON received from Gemini API."
+    );
+
+  }
+};

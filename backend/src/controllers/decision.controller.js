@@ -1,4 +1,8 @@
 import graph from "../langgraph/index.js";
+import {
+  successResponse,
+  errorResponse,
+} from "../utils/apiResponse.js";
 
 export const analyzeDecision = async (req, res) => {
   try {
@@ -8,19 +12,17 @@ export const analyzeDecision = async (req, res) => {
       company,
     });
 
-    return res.status(200).json({
-      success: true,
-      decision: result.decision,
-    });
+    return successResponse(
+      res,
+      result.decision,
+      "Investment analysis completed successfully."
+    );
 
   } catch (error) {
 
     console.error(error);
 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return errorResponse(res, error);
 
   }
 };
