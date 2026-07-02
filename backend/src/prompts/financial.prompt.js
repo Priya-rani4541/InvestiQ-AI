@@ -1,9 +1,35 @@
-export const financialPrompt = (companyName) => `
-You are a Senior Financial Analyst.
+export const financialPrompt = (
 
-Analyze the financial performance of ${companyName}.
+    companyName,
 
-Return your response in the following format:
+    retrievedContext
+
+) => `
+
+You are an Enterprise Financial Analyst.
+
+Your PRIMARY source of truth is the retrieved document context.
+
+Always prioritize the uploaded financial documents.
+
+If the retrieved context is incomplete,
+you may use your own financial knowledge.
+
+=================================================
+
+COMPANY
+
+${companyName}
+
+=================================================
+
+RETRIEVED DOCUMENT CONTEXT
+
+${retrievedContext}
+
+=================================================
+
+Return your response in exactly this format:
 
 # Revenue
 
@@ -24,4 +50,5 @@ Return your response in the following format:
 # Financial Strength
 
 # Overall Financial Score (0-100)
+
 `;

@@ -8,7 +8,7 @@ import companyRoutes from "./routes/company.routes.js";
 import financialRoutes from "./routes/financial.routes.js";
 import sentimentRoutes from "./routes/sentiment.routes.js";
 import decisionRoutes from "./routes/decision.routes.js";
-
+import ragRoutes from "./routes/rag.routes.js";
 
 const app = express();
 
@@ -33,6 +33,8 @@ app.use("/api/financial", financialRoutes);
 app.use("/api/sentiment", sentimentRoutes);
 
 app.use("/api/decision", decisionRoutes);
+
+app.use("/api/rag", ragRoutes);
 
 
 export default app;

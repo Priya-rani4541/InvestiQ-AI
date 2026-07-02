@@ -10,44 +10,51 @@ import GeminiError from "../../errors/GeminiError.js";
 import AIServiceError from "../../errors/AIServiceError.js";
 
 export const generateDecision = async (
-  company,
-  researchReport,
-  financialReport,
-  sentimentReport
+    company,
+    retrievedContext,
+    researchReport,
+    financialReport,
+    sentimentReport
 ) => {
-  try {
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
+    try {
 
-    const prompt = decisionPrompt(
-      company,
-      researchReport,
-      financialReport,
-      sentimentReport
-    );
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+        });
 
-    const result = await model.generateContent(prompt);
+        const prompt = decisionPrompt(
+            company,
+            retrievedContext,
+            researchReport,
+            financialReport,
+            sentimentReport
+        );
 
-    const rawResponse = result.response.text();
+        const result = await model.generateContent(prompt);
 
-    const parsedResponse = parseGeminiJSON(rawResponse);
+        const rawResponse = result.response.text();
 
-    const validatedResponse =
-      validateDecisionSchema(parsedResponse);
+        const parsedResponse = parseGeminiJSON(rawResponse);
 
-    return validatedResponse;
+        const validatedResponse = validateDecisionSchema(
+            parsedResponse
+        );
 
-  } catch (error) {
+        return validatedResponse;
 
-    // Already our custom error
-    if (error instanceof AIServiceError) {
-      throw error;
+    } catch (error) {
+
+        // Already our custom error
+        if (error instanceof AIServiceError) {
+
+            throw error;
+
+        }
+
+        // Unknown Gemini Error
+        throw new GeminiError(error.message);
+
     }
 
-    // Unknown Gemini Error
-    throw new GeminiError(error.message);
-
-  }
 };
