@@ -1,27 +1,34 @@
 import { analyzeFinancials } from "../agents/financial/companyFinancial.agent.js";
 
+import {
+    successResponse,
+    errorResponse,
+} from "../utils/apiResponse.js";
+
 export const financialAnalysis = async (req, res) => {
 
-  try {
+    try {
 
-    const { company } = req.body;
+        const { company } = req.body;
 
-    const analysis = await analyzeFinancials(company);
+        const analysis = await analyzeFinancials(company);
 
-    return res.status(200).json({
-      success: true,
-      analysis,
-    });
+        return successResponse(
 
-  } catch (error) {
+            res,
 
-    console.error(error);
+            analysis,
 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+            "Financial analysis completed successfully."
 
-  }
+        );
+
+    }
+
+    catch (error) {
+
+        return errorResponse(res, error);
+
+    }
 
 };

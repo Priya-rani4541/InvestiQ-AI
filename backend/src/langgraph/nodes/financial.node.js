@@ -1,4 +1,5 @@
 import { analyzeFinancials } from "../../agents/financial/companyFinancial.agent.js";
+import AppError from "../../errors/AppError.js";
 
 export async function financialNode(state) {
 
@@ -24,9 +25,13 @@ export async function financialNode(state) {
 
     catch (error) {
 
-        throw new Error(
+        throw new AppError(
 
-            `Financial Node Error: ${error.message}`
+            error.message || "Financial Agent Failed.",
+
+            error.statusCode || 500,
+
+            "FINANCIAL_AGENT_ERROR"
 
         );
 

@@ -31,22 +31,64 @@ const retry = async (callback) => {
 
             return await callback();
 
-        } catch (error) {
+        }
+
+        catch (error) {
+
+            const message = error?.message || "";
+
+            /**
+             * Retry only on temporary failures
+             */
+
+            const retryable =
+
+                message.includes("429") ||
+
+                message.includes("503") ||
+
+                message.includes("500");
+
+            logEmbedding(
+
+                `Embedding Error : ${message}`
+
+            );
+
+            if (!retryable) {
+
+                throw new EmbeddingError(
+
+                    `Embedding Failed : ${message}`
+
+                );
+
+            }
 
             retries--;
 
             logEmbedding(
-                `Retry Attempt Remaining : ${retries}`
+
+                `Retry Remaining : ${retries}`
+
             );
 
             if (retries === 0) {
 
-                throw new EmbeddingError(error.message);
+                throw new EmbeddingError(
+
+                    "EMBEDDING_QUOTA_EXCEEDED"
+
+                );
 
             }
 
-            await new Promise((resolve) =>
-                setTimeout(resolve, RETRY_DELAY)
+            await new Promise(
+
+                resolve =>
+
+                    setTimeout(resolve, RETRY_DELAY)
+
             );
 
         }
@@ -54,7 +96,6 @@ const retry = async (callback) => {
     }
 
 };
-
 /**
  * Generate Single Embedding
  */
@@ -83,38 +124,101 @@ export const generateEmbedding = async (text) => {
  * Generate Batch Embeddings
  */
 
-export const generateBatchEmbeddings = async (chunks) => {
+/**
+ * Generate Batch Embeddings
+ * (Production Optimized)
+ */
+
+export const generateBatchEmbeddings = async (
+
+    chunks,
+
+    batchSize = 10
+
+) => {
 
     if (!chunks || chunks.length === 0) {
 
         throw new EmbeddingError(
+
             "Chunks are required."
+
         );
 
     }
 
     logEmbedding(
-        `Generating ${chunks.length} Embeddings...`
+
+        `Generating ${chunks.length} embeddings...`
+
     );
 
     const vectors = [];
 
-    for (let i = 0; i < chunks.length; i++) {
+    const totalBatches = Math.ceil(
+
+        chunks.length / batchSize
+
+    );
+
+    for (
+
+        let batch = 0;
+
+        batch < totalBatches;
+
+        batch++
+
+    ) {
+
+        const start = batch * batchSize;
+
+        const end = Math.min(
+
+            start + batchSize,
+
+            chunks.length
+
+        );
 
         logEmbedding(
-            `Embedding ${i + 1} / ${chunks.length}`
+
+            `Batch ${batch + 1}/${totalBatches} (${start + 1}-${end})`
+
         );
 
-        const vector = await generateEmbedding(
-            chunks[i].content
+        const currentBatch = chunks.slice(
+
+            start,
+
+            end
+
         );
 
-        vectors.push(vector);
+        const batchVectors = await Promise.all(
+
+            currentBatch.map(
+
+                async (chunk) =>
+
+                    await generateEmbedding(
+
+                        chunk.content
+
+                    )
+
+            )
+
+        );
+
+        vectors.push(...batchVectors);
 
     }
 
     logEmbedding(
+
         `Successfully generated ${vectors.length} embeddings.`
+
     );
 
     return vectors;

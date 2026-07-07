@@ -1,4 +1,5 @@
 import { generateDecision } from "../../agents/decision/companyDecision.agent.js";
+import AppError from "../../errors/AppError.js";
 
 export async function decisionNode(state) {
 
@@ -30,9 +31,13 @@ export async function decisionNode(state) {
 
     catch (error) {
 
-        throw new Error(
+        throw new AppError(
 
-            `Decision Node Error: ${error.message}`
+            error.message || "Decision Agent Failed.",
+
+            error.statusCode || 500,
+
+            "DECISION_AGENT_ERROR"
 
         );
 

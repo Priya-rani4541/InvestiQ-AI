@@ -1,0 +1,41 @@
+.upload-card{
+
+    max-width:900px;
+    
+    margin:30px auto;
+    
+    padding:40px;
+    
+    border:2px dashed #334155;
+    
+    border-radius:16px;
+    
+    text-align:center;
+    
+    background:#0F172A;
+    
+    cursor:pointer;
+    
+    transition:.3s;
+    
+    }
+    
+    .upload-card:hover{
+    
+    border-color:#2563EB;
+    
+    }
+    
+    .upload-card h3{
+    
+    margin-bottom:15px;
+    
+    font-size:26px;
+    
+    }
+    
+    .upload-card p{
+    
+    color:#94A3B8;
+    
+    }

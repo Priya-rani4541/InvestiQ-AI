@@ -20,3 +20,5 @@ coverage/
 
 # Build
 dist/
+
+backend/uploads/pdf/

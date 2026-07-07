@@ -1,55 +1,60 @@
-const registry = new Map();
-
 /**
- * Register a document
+ * ==========================================================
+ *  DOCUMENT REGISTRY
+ * ==========================================================
+ *
+ * Registry layer has been deprecated.
+ *
+ * InvestiQ-AI now uses MongoDB Document Collection
+ * as the single source of truth.
+ *
+ * All document indexing state,
+ * duplicate detection,
+ * upload history,
+ * processing status,
+ * vector status
+ * are maintained inside MongoDB.
+ *
+ * This file is intentionally left for
+ * backward compatibility.
+ *
+ * It will be removed completely
+ * after Phase 7 Cleanup.
+ * ==========================================================
  */
-export const registerDocument = (document) => {
 
-    registry.set(document.hash, document);
+export const registerDocument = () => {
+
+    return;
 
 };
 
-/**
- * Check whether document is already indexed
- */
-export const isDocumentIndexed = (hash) => {
+export const isDocumentIndexed = () => {
 
-    return registry.has(hash);
+    return false;
 
 };
 
-/**
- * Get document by hash
- */
-export const getDocument = (hash) => {
+export const getDocument = () => {
 
-    return registry.get(hash);
+    return null;
 
 };
 
-/**
- * Get all indexed documents
- */
 export const getAllDocuments = () => {
 
-    return Array.from(registry.values());
+    return [];
 
 };
 
-/**
- * Total indexed documents
- */
 export const totalIndexedDocuments = () => {
 
-    return registry.size;
+    return 0;
 
 };
 
-/**
- * Remove document
- */
-export const removeDocument = (hash) => {
+export const removeDocument = () => {
 
-    registry.delete(hash);
+    return;
 
 };

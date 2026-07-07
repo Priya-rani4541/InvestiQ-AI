@@ -1,4 +1,5 @@
 import { analyzeCompany } from "../../agents/research/companyResearch.agent.js";
+import AppError from "../../errors/AppError.js";
 
 export async function researchNode(state) {
 
@@ -24,9 +25,13 @@ export async function researchNode(state) {
 
     catch (error) {
 
-        throw new Error(
+        throw new AppError(
 
-            `Research Node Error: ${error.message}`
+            error.message || "Research Agent Failed.",
+
+            error.statusCode || 500,
+
+            "RESEARCH_AGENT_ERROR"
 
         );
 

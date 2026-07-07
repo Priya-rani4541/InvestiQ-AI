@@ -1,8 +1,8 @@
-import { processDocument } from "../../rag/services/document.service.js";
+import Document from "../../models/Document.js";
+import { logger } from "../../logger/logger.js";
 
-import { generateBatchEmbeddings } from "../../rag/embeddings/embedding.service.js";
 
-import { addVectors } from "../../rag/vectorstore/vectorStore.service.js";
+import AppError from "../../errors/AppError.js";
 
 import { retrieveRelevantChunks } from "../../rag/retriever/retriever.service.js";
 
@@ -10,89 +10,42 @@ import { buildContext } from "../../rag/context/contextBuilder.service.js";
 
 export const ragNode = async (state) => {
 
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("📄 RAG Node Started");
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    logger.info("RAG Node Started");
+    logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-    const {
+    const { company } = state;
 
-        company,
+    /**
+     * Check Indexed Document
+     */
 
-        uploadedDocuments,
+    const latestDocument = await Document.findOne({
 
-    } = state;
+        indexed: true,
 
-    if (!uploadedDocuments || uploadedDocuments.length === 0) {
+    }).sort({
 
-        throw new Error("No uploaded documents found.");
+        indexedAt: -1,
+
+    });
+
+    if (!latestDocument) {
+
+        throw new AppError(
+
+            "No indexed document found.",
+
+            404,
+
+            "DOCUMENT_NOT_FOUND"
+
+        );
 
     }
 
     /**
-     * For Sprint 9
-     * Process first uploaded document.
-     *
-     * Sprint 10:
-     * We'll support multiple PDFs.
-     */
-
-    const document = uploadedDocuments[0];
-
-    /**
-     * Step 1
-     * Process PDF
-     */
-
-    const processedDocument = await processDocument(
-
-        document.filePath
-
-    );
-
-    /**
-     * Step 2
-     * Generate Embeddings
-     */
-
-    const embeddings = await generateBatchEmbeddings(
-
-        processedDocument.chunks
-
-    );
-
-    /**
-     * Step 3
-     * Prepare Vector Documents
-     */
-
-    const vectorDocuments = processedDocument.chunks.map(
-
-        (chunk, index) => ({
-
-            documentId: chunk.id,
-
-            content: chunk.content,
-
-            embedding: embeddings[index],
-
-        })
-
-    );
-
-    /**
-     * Step 4
-     * Store in Local Vector Store
-     */
-
-    await addVectors(
-
-        vectorDocuments
-
-    );
-
-    /**
-     * Step 5
-     * Retrieve Relevant Chunks
+     * Retrieve Similar Chunks
      */
 
     const retrievedChunks = await retrieveRelevantChunks(
@@ -104,7 +57,6 @@ export const ragNode = async (state) => {
     );
 
     /**
-     * Step 6
      * Build Context
      */
 
@@ -114,8 +66,7 @@ export const ragNode = async (state) => {
 
     );
 
-    console.log("✅ RAG Context Generated");
-
+    logger.info("Context Generated Successfully");
     return {
 
         ...state,

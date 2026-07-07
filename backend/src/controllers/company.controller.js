@@ -1,21 +1,34 @@
 import { analyzeCompany } from "../agents/research/companyResearch.agent.js";
 
+import {
+    successResponse,
+    errorResponse,
+} from "../utils/apiResponse.js";
+
 export const analyze = async (req, res) => {
-  try {
-    const { company } = req.body;
 
-    const analysis = await analyzeCompany(company);
+    try {
 
-    res.status(200).json({
-      success: true,
-      analysis,
-    });
-  } catch (error) {
-    console.error(error);
+        const { company } = req.body;
 
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+        const analysis = await analyzeCompany(company);
+
+        return successResponse(
+
+            res,
+
+            analysis,
+
+            "Company analysis completed successfully."
+
+        );
+
+    }
+
+    catch (error) {
+
+        return errorResponse(res, error);
+
+    }
+
 };

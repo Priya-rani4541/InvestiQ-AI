@@ -1,0 +1,55 @@
+.summary-card{
+
+    background:#111827;
+
+    border:1px solid #1F2937;
+
+    border-radius:18px;
+
+    padding:30px;
+
+}
+
+.summary-card h2{
+
+    margin-bottom:25px;
+
+    font-size:28px;
+
+}
+
+.summary-content{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+}
+
+.summary-item{
+
+    background:#1A2235;
+
+    border-radius:12px;
+
+    padding:18px;
+
+}
+
+.summary-item span{
+
+    color:#9CA3AF;
+
+    display:block;
+
+    margin-bottom:8px;
+
+}
+
+.summary-item strong{
+
+    font-size:20px;
+
+}

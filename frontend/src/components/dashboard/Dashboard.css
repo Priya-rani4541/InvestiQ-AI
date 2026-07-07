@@ -1,0 +1,77 @@
+.dashboard {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    background: #050816;
+
+    padding: 40px;
+
+    color: white;
+
+}
+
+.dashboard-header{
+
+    margin-bottom:40px;
+
+}
+
+.dashboard-header h1{
+
+    font-size:38px;
+
+    font-weight:700;
+
+    margin-bottom:12px;
+
+}
+
+.dashboard-header p{
+
+    color:#9CA3AF;
+
+    font-size:18px;
+
+}
+
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:2fr 1fr;
+
+    gap:25px;
+
+    margin-bottom:30px;
+
+}
+
+.dashboard-progress{
+
+    width:100%;
+
+}
+
+@media(max-width:1000px){
+
+.dashboard-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.dashboard{
+
+padding:20px;
+
+}
+
+.dashboard-header h1{
+
+font-size:30px;
+
+}
+
+}

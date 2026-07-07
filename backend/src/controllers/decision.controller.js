@@ -4,6 +4,8 @@ import {
   errorResponse,
 } from "../utils/apiResponse.js";
 
+import { logger } from "../logger/logger.js";
+
 export const analyzeDecision = async (req, res) => {
   try {
     const { company } = req.body;
@@ -20,7 +22,7 @@ export const analyzeDecision = async (req, res) => {
 
   } catch (error) {
 
-    console.error(error);
+    logger.error(error.stack || error.message);
 
     return errorResponse(res, error);
 

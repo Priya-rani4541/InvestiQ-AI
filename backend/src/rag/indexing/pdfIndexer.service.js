@@ -1,41 +1,96 @@
+import Document from "../../models/Document.js";
+
 import { processDocument } from "../services/document.service.js";
 
 import { generateBatchEmbeddings } from "../embeddings/embedding.service.js";
 
-import { addVectors } from "../vectorstore/vectorStore.service.js";
+import { addVectors } from "../vectorstore/mongoVectorStore.service.js";
 
-export const indexPDF = async (filePath) => {
+export const indexPDF = async (documentId, filePath) => {
 
-    // 1. Process Document
+    console.log("========== INDEX PDF ==========");
+
+    console.log("Step 1 : Processing PDF");
+
     const document = await processDocument(filePath);
 
-    // 2. Generate Embeddings
+    console.log(
+        "Chunks Generated :",
+        document.chunks.length
+    );
+
+    console.log("Step 2 : Generating Embeddings");
+
     const embeddings = await generateBatchEmbeddings(
         document.chunks
     );
 
-    // 3. Build Vector Documents
-    const vectorDocuments = document.chunks.map((chunk, index) => ({
+    console.log(
+        "Embeddings Generated :",
+        embeddings.length
+    );
 
-        documentId: chunk.id ?? `chunk-${index + 1}`,
+    console.log("Step 3 : Building Vector Documents");
 
-        content: chunk.content,
+    const vectorDocuments = document.chunks.map(
 
-        metadata: chunk.metadata,
+        (chunk, index) => ({
 
-        embedding: embeddings[index]
+            documentId,
 
-    }));
+            chunkIndex: index,
 
-    // 4. Store Vectors
+            content: chunk.content,
+
+            embedding: embeddings[index],
+
+            metadata: {
+
+                page:
+                    chunk.metadata?.page ?? 0,
+
+                source:
+                    chunk.metadata?.fileName ??
+                    document.fileName ??
+                    "",
+
+            },
+
+        })
+
+    );
+
+    console.log(
+        "Vector Documents :",
+        vectorDocuments.length
+    );
+
+    console.log("Step 4 : Saving to MongoDB");
+
     await addVectors(vectorDocuments);
 
-    return {
+    console.log("Vectors Saved");
 
-        chunkCount: document.chunks.length,
+    await Document.findByIdAndUpdate(
 
-        vectorCount: vectorDocuments.length
+        documentId,
 
-    };
+        {
+
+            indexed: true,
+
+            indexedAt: new Date(),
+
+            chunkCount: vectorDocuments.length,
+
+            vectorCount: vectorDocuments.length,
+
+        }
+
+    );
+
+    console.log("Document Updated");
+
+    console.log("========== DONE ==========");
 
 };

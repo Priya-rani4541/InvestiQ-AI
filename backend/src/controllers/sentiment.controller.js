@@ -1,27 +1,34 @@
 import { analyzeSentiment } from "../agents/sentiment/companySentiment.agent.js";
 
+import {
+    successResponse,
+    errorResponse,
+} from "../utils/apiResponse.js";
+
 export const sentimentAnalysis = async (req, res) => {
 
-  try {
+    try {
 
-    const { company } = req.body;
+        const { company } = req.body;
 
-    const analysis = await analyzeSentiment(company);
+        const analysis = await analyzeSentiment(company);
 
-    return res.status(200).json({
-      success: true,
-      analysis,
-    });
+        return successResponse(
 
-  } catch (error) {
+            res,
 
-    console.error(error);
+            analysis,
 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+            "Sentiment analysis completed successfully."
 
-  }
+        );
+
+    }
+
+    catch (error) {
+
+        return errorResponse(res, error);
+
+    }
 
 };

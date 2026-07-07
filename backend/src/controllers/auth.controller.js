@@ -1,116 +1,167 @@
 import { validationResult } from "express-validator";
 
 import {
-  registerUser,
-  loginUser,
+    registerUser,
+    loginUser,
 } from "../services/auth.service.js";
 
+import AppError from "../errors/AppError.js";
 
-// ==========================
-// Register
-// ==========================
+import {
+    successResponse,
+    errorResponse,
+} from "../utils/apiResponse.js";
+
+/**
+ * Register
+ */
 
 export const register = async (req, res) => {
 
-  const errors = validationResult(req);
+    try {
 
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.array(),
-    });
-  }
+        const errors = validationResult(req);
 
-  try {
+        if (!errors.isEmpty()) {
 
-    const { user, token } = await registerUser(req.body);
+            throw new AppError(
 
-    return res.status(201).json({
-      success: true,
-      message: "User Registered Successfully",
-      token,
+                "Validation failed.",
 
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      },
-    });
+                400,
 
-  } catch (error) {
+                "VALIDATION_ERROR"
 
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+            );
 
-  }
+        }
+
+        const { user, token } = await registerUser(req.body);
+
+        return successResponse(
+
+            res,
+
+            {
+
+                token,
+
+                user: {
+
+                    id: user._id,
+
+                    fullName: user.fullName,
+
+                    email: user.email,
+
+                    role: user.role,
+
+                },
+
+            },
+
+            "User Registered Successfully",
+
+            201
+
+        );
+
+    }
+
+    catch (error) {
+
+        return errorResponse(res, error);
+
+    }
 
 };
 
-
-// ==========================
-// Login
-// ==========================
+/**
+ * Login
+ */
 
 export const login = async (req, res) => {
 
-  const errors = validationResult(req);
+    try {
 
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.array(),
-    });
-  }
+        const errors = validationResult(req);
 
-  try {
+        if (!errors.isEmpty()) {
 
-    const { user, token } = await loginUser(req.body);
+            throw new AppError(
 
-    return res.status(200).json({
-      success: true,
-      message: "Login Successful",
-      token,
+                "Validation failed.",
 
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      },
-    });
+                400,
 
-  } catch (error) {
+                "VALIDATION_ERROR"
 
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+            );
 
-  }
+        }
+
+        const { user, token } = await loginUser(req.body);
+
+        return successResponse(
+
+            res,
+
+            {
+
+                token,
+
+                user: {
+
+                    id: user._id,
+
+                    fullName: user.fullName,
+
+                    email: user.email,
+
+                    role: user.role,
+
+                },
+
+            },
+
+            "Login Successful"
+
+        );
+
+    }
+
+    catch (error) {
+
+        return errorResponse(res, error);
+
+    }
 
 };
 
-// ==========================
-// Get Current User
-// ==========================
+/**
+ * Current User
+ */
 
 export const getCurrentUser = async (req, res) => {
 
-  try {
+    try {
 
-    return res.status(200).json({
-      success: true,
-      user: req.user,
-    });
+        return successResponse(
 
-  } catch (error) {
+            res,
 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+            req.user,
 
-  }
+            "Current user fetched successfully."
+
+        );
+
+    }
+
+    catch (error) {
+
+        return errorResponse(res, error);
+
+    }
 
 };

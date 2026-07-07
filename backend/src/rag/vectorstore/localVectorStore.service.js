@@ -1,6 +1,6 @@
 import { VectorStoreInterface } from "../interfaces/vectorStore.interface.js";
 import { cosineSimilarity } from "../utils/cosineSimilarity.js";
-
+import AppError from "../../errors/AppError.js";
 export class LocalVectorStore extends VectorStoreInterface {
 
     constructor() {
@@ -15,7 +15,11 @@ export class LocalVectorStore extends VectorStoreInterface {
 
         if (!documents || documents.length === 0) {
 
-            throw new Error("Documents are required.");
+            throw new AppError(
+                "Documents are required.",
+                400,
+                "DOCUMENTS_REQUIRED"
+            );
 
         }
 
@@ -25,7 +29,7 @@ export class LocalVectorStore extends VectorStoreInterface {
 
     }
 
-    async similaritySearch(queryEmbedding, topK = 5) {
+    async similaritySearch(queryEmbedding, topK = 5, filter = null) {
 
         const scoredDocuments = this.documents.map((doc) => ({
     

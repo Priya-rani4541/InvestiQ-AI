@@ -1,0 +1,57 @@
+.decision-card{
+
+    background:#111827;
+
+    border-radius:18px;
+
+    padding:30px;
+
+    border:1px solid #1F2937;
+
+}
+
+.decision-card h2{
+
+    margin-bottom:25px;
+
+}
+
+.decision-badge{
+
+    background:#16A34A;
+
+    color:white;
+
+    text-align:center;
+
+    font-size:28px;
+
+    font-weight:700;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    margin-bottom:30px;
+
+}
+
+.decision-info{
+
+    margin-bottom:18px;
+
+}
+
+.decision-info p{
+
+    color:#9CA3AF;
+
+    margin-bottom:5px;
+
+}
+
+.decision-info strong{
+
+    font-size:22px;
+
+}

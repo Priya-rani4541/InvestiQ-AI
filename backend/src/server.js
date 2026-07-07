@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { logger } from "./logger/logger.js";
 dotenv.config();
 
 
@@ -12,14 +13,14 @@ const startServer = async () => {
     await connectDB();
 
     app.listen(PORT, () => {
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-      console.log(`🚀 Server Running`);
-      console.log(`🌐 http://localhost:${PORT}`);
-      console.log(`🛠 Environment : ${process.env.NODE_ENV}`);
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+      logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+      logger.info("Server Running");
+      logger.info(`URL : http://localhost:${PORT}`);
+      logger.info(`Environment : ${process.env.NODE_ENV}`);
+      logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error.stack || error.message);
   }
 };
 

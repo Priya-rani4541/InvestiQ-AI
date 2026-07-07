@@ -2,26 +2,28 @@ import { Annotation } from "@langchain/langgraph";
 
 export const graphState = Annotation.Root({
 
-  company: Annotation(),
+    /**
+     * User Input
+     */
+    company: Annotation(),
 
-// Future Structure:
-  // [
-  //   {
-  //   fileName: "tesla_annual_report.pdf",
-  //   filePath: "./uploads/pdf/tesla_annual_report.pdf"
-  //   }
-  // ]
-  uploadedDocuments: Annotation(),
-  
+    /**
+     * RAG Context
+     */
+    retrievedContext: Annotation(),
 
-  retrievedContext: Annotation(),
+    /**
+     * AI Agents
+     */
+    research: Annotation(),
 
-  research: Annotation(),
+    financial: Annotation(),
 
-  financial: Annotation(),
+    sentiment: Annotation(),
 
-  sentiment: Annotation(),
-
-  decision: Annotation(),
+    /**
+     * Final Decision
+     */
+    decision: Annotation(),
 
 });

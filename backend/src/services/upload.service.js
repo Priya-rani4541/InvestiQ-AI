@@ -1,48 +1,103 @@
+import crypto from "crypto";
+import fs from "fs";
+import { startPDFIndexJob } from "../jobs/pdfIndex.job.js";
+
+import Document from "../models/Document.js";
+
+
 export const uploadPDFService = async (file) => {
 
-  const hash = crypto
-      .createHash("sha256")
-      .update(file.filename)
-      .digest("hex");
+    /**
+     * Create hash from file contents
+     * (Production-ready duplicate detection)
+     */
+    const buffer = fs.readFileSync(file.path);
 
-  if (isDocumentIndexed(hash)) {
+    const hash = crypto
+        .createHash("sha256")
+        .update(buffer)
+        .digest("hex");
 
-      return {
+    /**
+     * Duplicate Check
+     */
+    const existingDocument = await Document.findOne({ hash });
 
-          alreadyIndexed: true,
+    if (existingDocument) {
 
-          fileName: file.filename,
+        return {
 
-      };
+            success: true,
 
-  }
+            alreadyIndexed: true,
 
-  const indexed = await indexPDF(file.path);
+            document: existingDocument,
 
-  registerDocument({
+        };
 
-      hash,
+    }
 
-      fileName: file.filename,
+    /**
+     * Create MongoDB Document FIRST
+     */
+    const document = await Document.create({
 
-      filePath: file.path,
+        company: null,
 
-      chunkCount: indexed.chunkCount,
+        fileName: file.originalname,
 
-      vectorCount: indexed.vectorCount,
+        storedFileName: file.filename,
 
-      indexedAt: new Date(),
+        filePath: file.path,
 
-  });
+        fileType: file.mimetype,
 
-  return {
+        hash,
 
-      success: true,
+        indexed: false,
 
-      alreadyIndexed: false,
+        status: "UPLOADED",
 
-      ...indexed,
+        chunkCount: 0,
 
-  };
+        vectorCount: 0,
+
+        retryCount: 0,
+
+        errorMessage: null,
+
+            });
+
+    /**
+ * Start Background Indexing
+ */
+
+    startPDFIndexJob(
+
+        document._id,
+    
+        file.path
+    
+    );
+
+/**
+ * Immediate Response
+ */
+
+return {
+
+    success: true,
+
+    alreadyIndexed: false,
+
+    document,
+
+    indexingStatus: "PROCESSING",
+
+    message:
+
+        "PDF uploaded successfully. Background indexing started.",
+
+};
 
 };

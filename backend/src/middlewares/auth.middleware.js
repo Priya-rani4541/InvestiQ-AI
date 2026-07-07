@@ -1,52 +1,114 @@
 import jwt from "jsonwebtoken";
+
 import User from "../models/User.js";
+
+import AppError from "../errors/AppError.js";
 
 const authMiddleware = async (req, res, next) => {
 
-  try {
+    try {
 
-    const authHeader = req.headers.authorization;
+        const authHeader = req.headers.authorization;
 
-    // Check Authorization Header
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "Access Denied. No token provided.",
-      });
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+
+            return next(
+
+                new AppError(
+
+                    "Authentication required.",
+
+                    401,
+
+                    "UNAUTHORIZED"
+
+                )
+
+            );
+
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        const decoded = jwt.verify(
+
+            token,
+
+            process.env.JWT_SECRET
+
+        );
+
+        const user = await User.findById(
+
+            decoded.id
+
+        ).select("-password");
+
+        if (!user) {
+
+            return next(
+
+                new AppError(
+
+                    "User not found.",
+
+                    404,
+
+                    "USER_NOT_FOUND"
+
+                )
+
+            );
+
+        }
+
+        req.user = user;
+
+        next();
+
     }
 
-    // Extract Token
-    const token = authHeader.split(" ")[1];
+    catch (error) {
 
-    // Verify Token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+        if (error.name === "TokenExpiredError") {
 
-    // Find User
-    const user = await User.findById(decoded.id).select("-password");
+            return next(
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found",
-      });
+                new AppError(
+
+                    "Token expired.",
+
+                    401,
+
+                    "TOKEN_EXPIRED"
+
+                )
+
+            );
+
+        }
+
+        if (error.name === "JsonWebTokenError") {
+
+            return next(
+
+                new AppError(
+
+                    "Invalid token.",
+
+                    401,
+
+                    "INVALID_TOKEN"
+
+                )
+
+            );
+
+        }
+
+        return next(error);
+
     }
-
-    // Save User in Request
-    req.user = user;
-
-    next();
-
-  } catch (error) {
-
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or Expired Token",
-    });
-
-  }
 
 };
 

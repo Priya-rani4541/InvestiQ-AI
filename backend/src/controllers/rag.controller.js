@@ -1,179 +1,224 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+import AppError from "../errors/AppError.js";
+
+import {
+    successResponse,
+    errorResponse,
+} from "../utils/apiResponse.js";
+
 import { uploadPDFService } from "../services/upload.service.js";
-
-import { processDocument } from "../rag/services/document.service.js";
-
-import { generateBatchEmbeddings } from "../rag/embeddings/embedding.service.js";
-
-import { addVectors } from "../rag/vectorstore/vectorStore.service.js";
+import { getIndexStatusService } from "../services/indexStatus.service.js";
 
 import { retrieveRelevantChunks } from "../rag/retriever/retriever.service.js";
-
 import { formatContext } from "../rag/context/contextFormatter.service.js";
-
 import { buildPromptContext } from "../rag/context/promptContext.service.js";
 
 const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY
+    process.env.GEMINI_API_KEY
 );
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
+    model: "gemini-2.5-flash",
 });
 
 /**
- * Upload PDF Controller
+ * ======================================
+ * Upload PDF
+ * ======================================
  */
-export const uploadPDF = async (
-  req,
-  res,
-  next
-) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No PDF uploaded.",
-      });
+
+export const uploadPDF = async (req, res) => {
+
+    try {
+
+        if (!req.file) {
+
+            throw new AppError(
+                "No PDF uploaded.",
+                400,
+                "PDF_REQUIRED"
+            );
+
+        }
+
+        const result = await uploadPDFService(req.file);
+
+        return successResponse(
+            res,
+            result,
+            "PDF uploaded successfully."
+        );
+
     }
 
-    const result = await uploadPDFService(
-      req.file
-    );
+    catch (error) {
 
-    return res.status(200).json({
-      success: true,
-      message: "PDF uploaded successfully.",
-      data: result,
-    });
-  } catch (error) {
-    next(error);
-  }
+        return errorResponse(
+            res,
+            error
+        );
+
+    }
+
 };
 
 /**
- * RAG Query Controller
+ * ======================================
+ * Query RAG
+ * ======================================
  */
-export const queryRAG = async (
-  req,
-  res,
-  next
-) => {
-  try {
-    const { question } = req.body;
 
-    if (!question) {
-      return res.status(400).json({
-        success: false,
-        message: "Question is required.",
-      });
+export const queryRAG = async (req, res) => {
+
+    try {
+
+        const { question } = req.body;
+
+        if (!question) {
+
+            throw new AppError(
+                "Question is required.",
+                400,
+                "QUESTION_REQUIRED"
+            );
+
+        }
+
+        /**
+         * Retrieve Similar Chunks
+         */
+
+        const retrieved = await retrieveRelevantChunks(
+
+            question,
+
+            5
+
+        );
+
+        /**
+         * Build Context
+         */
+
+        const context = formatContext(
+
+            retrieved
+
+        );
+
+        /**
+         * Build Prompt
+         */
+
+        const prompt = buildPromptContext(
+
+            question,
+
+            context
+
+        );
+
+        /**
+         * Generate Answer
+         */
+
+        const response = await model.generateContent(
+
+            prompt
+
+        );
+
+        const answer = response.response.text();
+
+        return successResponse(
+
+            res,
+
+            {
+
+                question,
+
+                answer,
+
+                sources: retrieved.map(
+
+                    (doc) => ({
+
+                        documentId: doc.documentId,
+
+                        similarity: Number(
+
+                            doc.score.toFixed(4)
+
+                        ),
+
+                    })
+
+                ),
+
+            },
+
+            "RAG query completed successfully."
+
+        );
+
     }
 
-    /**
-     * STEP 1
-     * Process PDF
-     */
+    catch (error) {
 
-    const pdf = await processDocument(
-      "./uploads/pdf/tesla_annual_report.pdf"
-    );
+        return errorResponse(
 
-    /**
-     * STEP 2
-     * Use first 20 chunks
-     */
+            res,
 
-    const chunks = pdf.chunks.slice(0, 20);
+            error
 
-    /**
-     * STEP 3
-     * Generate Embeddings
-     */
+        );
 
-    const embeddings =
-      await generateBatchEmbeddings(chunks);
+    }
 
-    /**
-     * STEP 4
-     * Build Vector Documents
-     */
+};
 
-    const vectorDocs = chunks.map(
-      (chunk, index) => ({
-        documentId: chunk.id,
-        content: chunk.content,
-        embedding: embeddings[index],
-      })
-    );
+/**
+ * ======================================
+ * Get Index Status
+ * ======================================
+ */
 
-    /**
-     * STEP 5
-     * Store vectors
-     */
+export const getIndexStatus = async (req, res) => {
 
-    await addVectors(vectorDocs);
+    try {
 
-    /**
-     * STEP 6
-     * Retrieve Similar Chunks
-     */
+        const { documentId } = req.params;
 
-    const retrieved =
-      await retrieveRelevantChunks(
-        question,
-        5
-      );
+        const result = await getIndexStatusService(
 
-    /**
-     * STEP 7
-     * Build Prompt
-     */
+            documentId
 
-    const context =
-      formatContext(retrieved);
+        );
 
-    const prompt =
-      buildPromptContext(
-        question,
-        context
-      );
+        return successResponse(
 
-    /**
-     * STEP 8
-     * Gemini
-     */
+            res,
 
-    const response =
-      await model.generateContent(
-        prompt
-      );
+            result,
 
-    const answer =
-      response.response.text();
+            "Index status fetched successfully."
 
-    /**
-     * STEP 9
-     * Response
-     */
+        );
 
-    return res.status(200).json({
-      success: true,
+    }
 
-      question,
+    catch (error) {
 
-      answer,
+        return errorResponse(
 
-      sources: retrieved.map(
-        (doc) => ({
-          documentId: doc.documentId,
-          similarity: Number(
-            doc.score.toFixed(4)
-          ),
-        })
-      ),
-    });
-  } catch (error) {
-    next(error);
-  }
+            res,
+
+            error
+
+        );
+
+    }
+
 };

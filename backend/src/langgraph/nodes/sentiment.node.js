@@ -1,4 +1,5 @@
 import { analyzeSentiment } from "../../agents/sentiment/companySentiment.agent.js";
+import AppError from "../../errors/AppError.js";
 
 export async function sentimentNode(state) {
 
@@ -24,9 +25,13 @@ export async function sentimentNode(state) {
 
     catch (error) {
 
-        throw new Error(
+        throw new AppError(
 
-            `Sentiment Node Error: ${error.message}`
+            error.message || "Sentiment Agent Failed.",
+
+            error.statusCode || 500,
+
+            "SENTIMENT_AGENT_ERROR"
 
         );
 
