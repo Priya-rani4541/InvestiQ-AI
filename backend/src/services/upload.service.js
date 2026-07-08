@@ -85,10 +85,16 @@ export const uploadPDFService = async (file) => {
     /**
      * Background Indexing
      */
-    await startPDFIndexJob(
+
+    console.log("Calling Background Job...");
+    console.log(document._id.toString());
+    console.log(file.path);
+    startPDFIndexJob(
         document._id,
         file.path
     );
+
+    console.log("Background Job Triggered");
 
     return {
 
