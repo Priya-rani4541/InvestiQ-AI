@@ -1,4 +1,4 @@
-import Vector from "../../models/Vector.js";
+import Vector from "../../models/vector.js";
 
 /**
  * Insert Vector Documents
