@@ -42,7 +42,15 @@ export const uploadPDF = async (req, res) => {
 
         }
 
+        console.log("========== CONTROLLER ==========");
+        console.log("Upload Request Received");
+        console.log("File:", req.file.originalname);
+        console.log("Path:", req.file.path);
+        console.log("===============================");
+
         const result = await uploadPDFService(req.file);
+
+        console.log("Controller Response Success");
 
         return successResponse(
             res,
@@ -53,6 +61,10 @@ export const uploadPDF = async (req, res) => {
     }
 
     catch (error) {
+
+        console.error("========== CONTROLLER ERROR ==========");
+        console.error(error);
+        console.error("======================================");
 
         return errorResponse(
             res,
@@ -166,6 +178,11 @@ export const queryRAG = async (req, res) => {
     }
 
     catch (error) {
+        console.error("========== CONTROLLER ERROR ==========");
+        console.error(error);
+        console.error(error.stack);
+        console.error("======================================");
+
 
         return errorResponse(
 

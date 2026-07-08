@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import fs from "fs";
+
 import { startPDFIndexJob } from "../jobs/pdfIndex.job.js";
 import Document from "../models/Document.js";
 
@@ -9,14 +10,9 @@ export const uploadPDFService = async (file) => {
         throw new Error("No PDF uploaded.");
     }
 
-    // Ensure uploaded file exists
     if (!fs.existsSync(file.path)) {
         throw new Error(`Uploaded file not found: ${file.path}`);
     }
-
-    /**
-     * Create SHA256 Hash
-     */
 
     console.log("========== FILE DEBUG ==========");
     console.log("Original Name:", file.originalname);
@@ -25,35 +21,70 @@ export const uploadPDFService = async (file) => {
     console.log("Exists:", fs.existsSync(file.path));
     console.log("================================");
 
+    /**
+     * STEP 1
+     */
+
+    console.log("STEP 1 : Reading File");
+
     const buffer = fs.readFileSync(file.path);
+
+    console.log("STEP 1 DONE");
+
+    /**
+     * STEP 2
+     */
+
+    console.log("STEP 2 : Creating Hash");
 
     const hash = crypto
         .createHash("sha256")
         .update(buffer)
         .digest("hex");
 
+    console.log("STEP 2 DONE");
+
     /**
-     * Duplicate Detection
+     * STEP 3
      */
-    const existingDocument = await Document.findOne({ hash });
+
+    console.log("STEP 3 : Duplicate Check");
+
+    const existingDocument = await Document.findOne({
+        hash,
+    });
+
+    console.log("STEP 3 DONE");
 
     if (existingDocument) {
 
-        // Delete duplicate uploaded file
+        console.log("Duplicate PDF Found");
+
         try {
             fs.unlinkSync(file.path);
-        } catch {}
+        }
+        catch (err) {
+            console.error(err.message);
+        }
 
         return {
+
             success: true,
+
             alreadyIndexed: true,
+
             document: existingDocument,
+
         };
+
     }
 
     /**
-     * Create Document
+     * STEP 4
      */
+
+    console.log("STEP 4 : Creating Mongo Document");
+
     const document = await Document.create({
 
         company: null,
@@ -82,19 +113,22 @@ export const uploadPDFService = async (file) => {
 
     });
 
+    console.log("STEP 4 DONE");
+
+    console.log("Document Id :", document._id.toString());
+
     /**
-     * Background Indexing
+     * STEP 5
      */
 
-    console.log("Calling Background Job...");
-    console.log(document._id.toString());
-    console.log(file.path);
+    console.log("STEP 5 : Starting Background Job");
+
     startPDFIndexJob(
         document._id,
         file.path
     );
 
-    console.log("Background Job Triggered");
+    console.log("STEP 5 DONE");
 
     return {
 
