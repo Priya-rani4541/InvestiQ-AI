@@ -1,16 +1,30 @@
 import crypto from "crypto";
 import fs from "fs";
 import { startPDFIndexJob } from "../jobs/pdfIndex.job.js";
-
 import Document from "../models/Document.js";
-
 
 export const uploadPDFService = async (file) => {
 
+    if (!file) {
+        throw new Error("No PDF uploaded.");
+    }
+
+    // Ensure uploaded file exists
+    if (!fs.existsSync(file.path)) {
+        throw new Error(`Uploaded file not found: ${file.path}`);
+    }
+
     /**
-     * Create hash from file contents
-     * (Production-ready duplicate detection)
+     * Create SHA256 Hash
      */
+
+    console.log("========== FILE DEBUG ==========");
+    console.log("Original Name:", file.originalname);
+    console.log("Saved Path:", file.path);
+    console.log("Absolute Path:", fs.realpathSync(file.path));
+    console.log("Exists:", fs.existsSync(file.path));
+    console.log("================================");
+
     const buffer = fs.readFileSync(file.path);
 
     const hash = crypto
@@ -19,26 +33,26 @@ export const uploadPDFService = async (file) => {
         .digest("hex");
 
     /**
-     * Duplicate Check
+     * Duplicate Detection
      */
     const existingDocument = await Document.findOne({ hash });
 
     if (existingDocument) {
 
+        // Delete duplicate uploaded file
+        try {
+            fs.unlinkSync(file.path);
+        } catch {}
+
         return {
-
             success: true,
-
             alreadyIndexed: true,
-
             document: existingDocument,
-
         };
-
     }
 
     /**
-     * Create MongoDB Document FIRST
+     * Create Document
      */
     const document = await Document.create({
 
@@ -66,38 +80,29 @@ export const uploadPDFService = async (file) => {
 
         errorMessage: null,
 
-            });
+    });
 
     /**
- * Start Background Indexing
- */
-
-    startPDFIndexJob(
-
+     * Background Indexing
+     */
+    await startPDFIndexJob(
         document._id,
-    
         file.path
-    
     );
 
-/**
- * Immediate Response
- */
+    return {
 
-return {
+        success: true,
 
-    success: true,
+        alreadyIndexed: false,
 
-    alreadyIndexed: false,
+        document,
 
-    document,
+        indexingStatus: "PROCESSING",
 
-    indexingStatus: "PROCESSING",
+        message:
+            "PDF uploaded successfully. Background indexing started.",
 
-    message:
-
-        "PDF uploaded successfully. Background indexing started.",
-
-};
+    };
 
 };
