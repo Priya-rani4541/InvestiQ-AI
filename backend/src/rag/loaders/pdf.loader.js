@@ -1,21 +1,28 @@
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import fs from "fs";
+import pdfParse from "pdf-parse";
 
 export const loadPDF = async (filePath) => {
-  if (!filePath) {
-    throw new Error("PDF file path is required.");
-  }
 
-  const loader = new PDFLoader(filePath);
+    if (!filePath) {
+        throw new Error("PDF file path is required.");
+    }
 
-  const docs = await loader.load();
+    const buffer = fs.readFileSync(filePath);
 
-  const fullText = docs.map((doc) => doc.pageContent).join("\n");
+    const pdf = await pdfParse(buffer);
 
-  return {
-    fileName: filePath.split(/[\\/]/).pop(),
-    filePath,
-    pageCount: docs.length,
-    text: fullText,
-    documents: docs,
-  };
+    return {
+
+        fileName: filePath.split(/[\\/]/).pop(),
+
+        filePath,
+
+        pageCount: pdf.numpages,
+
+        text: pdf.text,
+
+        documents: []
+
+    };
+
 };
