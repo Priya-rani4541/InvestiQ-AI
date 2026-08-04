@@ -1,0 +1,47 @@
+.business-card{
+
+    background:#111827;
+
+    border-radius:16px;
+
+    padding:24px;
+
+    color:white;
+
+    box-shadow:0 0 15px rgba(0,0,0,.3);
+
+}
+
+.business-card h2{
+
+    margin-bottom:25px;
+
+    font-size:24px;
+
+}
+
+.business-section{
+
+    margin-bottom:25px;
+
+}
+
+.business-section h3{
+
+    color:#60A5FA;
+
+    margin-bottom:10px;
+
+    font-size:18px;
+
+}
+
+.business-section p{
+
+    color:#D1D5DB;
+
+    line-height:1.8;
+
+    text-align:justify;
+
+}

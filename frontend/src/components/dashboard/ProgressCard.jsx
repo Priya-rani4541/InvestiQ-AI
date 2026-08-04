@@ -1,6 +1,10 @@
 import "./ProgressCard.css";
 
+import useCompany from "../../hooks/useCompany";
+
 const ProgressCard = () => {
+
+    const { loading } = useCompany();
 
     const steps = [
 
@@ -10,7 +14,7 @@ const ProgressCard = () => {
 
         "Sentiment Agent",
 
-        "Decision Agent"
+        "Decision Agent",
 
     ];
 
@@ -18,27 +22,31 @@ const ProgressCard = () => {
 
         <div className="progress-card">
 
-            <h2>
-
-                AI Analysis Progress
-
-            </h2>
+            <h2>AI Analysis Progress</h2>
 
             {
 
-                steps.map((step,index)=>(
+                steps.map((step, index) => (
 
                     <div
 
-                        className="progress-item"
-
                         key={index}
+
+                        className="progress-item"
 
                     >
 
                         <span>
 
-                            ✅
+                            {
+
+                                loading
+
+                                    ? "⏳"
+
+                                    : "✅"
+
+                            }
 
                         </span>
 

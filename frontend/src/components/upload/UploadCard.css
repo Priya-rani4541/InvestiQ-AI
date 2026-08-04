@@ -39,3 +39,21 @@
     color:#94A3B8;
     
     }
+
+    .upload-status{
+
+        margin-top:25px;
+        
+        padding:15px;
+        
+        border-radius:12px;
+        
+        background:#1E293B;
+        
+        color:#38BDF8;
+        
+        font-weight:600;
+        
+        font-size:17px;
+        
+        }

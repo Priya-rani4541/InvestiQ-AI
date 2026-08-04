@@ -3,41 +3,48 @@ import "./Dashboard.css";
 import SummaryCard from "./SummaryCard";
 import DecisionCard from "./DecisionCard";
 import ProgressCard from "./ProgressCard";
+import BusinessCard from "./BusinessCard";
 
 const Dashboard = () => {
-  return (
-    <main className="dashboard">
+    return (
+        <main className="dashboard">
 
-      <section className="dashboard-header">
+            <section className="dashboard-header">
 
-        <div>
+                <div>
 
-          <h1>Investment Analysis Dashboard</h1>
+                    <h1>Investment Analysis Dashboard</h1>
 
-          <p>
-            Enterprise AI Multi-Agent Investment Research Platform
-          </p>
+                    <p>
+                        Enterprise AI Multi-Agent Investment Research Platform
+                    </p>
 
-        </div>
+                </div>
 
-      </section>
+            </section>
 
-      <section className="dashboard-grid">
+            {/* Summary + Decision */}
 
-        <SummaryCard />
+            <section className="dashboard-grid">
 
-        <DecisionCard />
+                <SummaryCard />
 
-      </section>
+                <DecisionCard />
 
-      <section className="dashboard-progress">
+            </section>
 
-        <ProgressCard />
+            {/* Business + Progress */}
 
-      </section>
+            <section className="dashboard-grid">
 
-    </main>
-  );
+                <BusinessCard />
+
+                <ProgressCard />
+
+            </section>
+
+        </main>
+    );
 };
 
 export default Dashboard;

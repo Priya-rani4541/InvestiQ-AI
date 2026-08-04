@@ -1,28 +1,34 @@
 /**
  * Converts retrieved chunks
- * into a professional context.
+ * into a structured context
+ * for Gemini.
  */
 
 export const formatContext = (documents) => {
 
-    if (!documents?.length) {
+    if (!documents || documents.length === 0) {
 
         return "";
 
     }
 
-    return documents.map((doc, index) => {
+    return documents
+        .map((doc, index) => {
 
-        return `
+            return `
 ========== SOURCE ${index + 1} ==========
-Document ID : ${doc.documentId}
 
-Similarity Score : ${doc.score.toFixed(4)}
+Document ID:
+${doc.documentId}
 
-Content :
+Similarity Score:
+${Number(doc.score).toFixed(4)}
+
+Content:
 ${doc.content}
 `;
 
-    }).join("\n");
+        })
+        .join("\n");
 
 };

@@ -1,6 +1,26 @@
 import "./DecisionCard.css";
 
+import useCompany from "../../hooks/useCompany";
+
 const DecisionCard = () => {
+
+    const { analysis, loading } = useCompany();
+
+    if (loading) {
+
+        return (
+
+            <div className="decision-card">
+
+                <h2>AI Decision</h2>
+
+                <p>Analyzing...</p>
+
+            </div>
+
+        );
+
+    }
 
     return (
 
@@ -10,21 +30,17 @@ const DecisionCard = () => {
 
             <div className="decision-badge">
 
-                INVEST
+                {analysis?.decision || "-"}
 
             </div>
 
             <div className="decision-info">
 
-                <p>
-
-                    Confidence
-
-                </p>
+                <p>Confidence</p>
 
                 <strong>
 
-                    91%
+                    {analysis?.confidence || "-"}
 
                 </strong>
 
@@ -32,15 +48,11 @@ const DecisionCard = () => {
 
             <div className="decision-info">
 
-                <p>
-
-                    Risk Level
-
-                </p>
+                <p>Risk Level</p>
 
                 <strong>
 
-                    Medium
+                    {analysis?.risk || "-"}
 
                 </strong>
 

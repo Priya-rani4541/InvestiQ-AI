@@ -1,37 +1,55 @@
 import "./SummaryCard.css";
 
+import useCompany from "../../hooks/useCompany";
+
 const SummaryCard = () => {
-  return (
-    <div className="summary-card">
 
-      <h2>Company Summary</h2>
+    const { analysis, loading } = useCompany();
+    console.log("Analysis:", analysis);
 
-      <div className="summary-content">
+    if (loading) {
+        return (
+            <div className="summary-card">
+                <h2>Company Summary</h2>
+                <p>Loading...</p>
+            </div>
+        );
+    }
 
-        <div className="summary-item">
-          <span>Company</span>
-          <strong>Tesla Inc.</strong>
+    return (
+
+        <div className="summary-card">
+
+            <h2>Company Summary</h2>
+
+            <div className="summary-content">
+
+                <div className="summary-item">
+                    <span>Company</span>
+                    <strong>{analysis?.company || "-"}</strong>
+                </div>
+
+                <div className="summary-item">
+                    <span>Sector</span>
+                    <strong>{analysis?.sector || "-"}</strong>
+                </div>
+
+                <div className="summary-item">
+                    <span>Market Cap</span>
+                    <strong>{analysis?.marketCap || "-"}</strong>
+                </div>
+
+                <div className="summary-item">
+                    <span>Current Price</span>
+                    <strong>{analysis?.currentPrice || "-"}</strong>
+                </div>
+
+            </div>
+
         </div>
 
-        <div className="summary-item">
-          <span>Sector</span>
-          <strong>Automobile</strong>
-        </div>
+    );
 
-        <div className="summary-item">
-          <span>Market Cap</span>
-          <strong>$1.2 Trillion</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Current Price</span>
-          <strong>$326.21</strong>
-        </div>
-
-      </div>
-
-    </div>
-  );
 };
 
 export default SummaryCard;
